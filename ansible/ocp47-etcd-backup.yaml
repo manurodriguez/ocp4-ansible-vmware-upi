@@ -1,0 +1,39 @@
+---
+- name: Pre bastion tasks
+  hosts: bastion
+  become: true
+  vars:
+    backup_bastion_path: "/opt/etcd-backups"
+  tasks:
+  - name: Make sure bastion backup dir exists
+    file:
+      path: "{{ backup_bastion_path }}"
+      state: directory
+      owner: "{{ ansible_user }}"
+      group: users
+      mode:  u+rgw,g+srwx+o+rx
+
+  - name: Ensure a job exits to run this play automatically"
+    cron:
+      name: "Take etcd backups"
+      minute: "15"
+      hour: "16"
+      job: "cd /home/lab-user/scripts/ansible/ && /usr/bin/ansible-playbook ocp47-etcd-backup.yaml"
+    become: false
+
+
+- name: Generate and pull etcd backups
+  hosts: masters
+  become: true
+  roles:
+    - etcd-backups
+
+
+- name: Post bastion tasks
+  hosts: bastion
+  become: true
+  vars:
+    backup_bastion_path: "/opt/etcd-backups"
+  tasks:
+  - name: Rotate content of bastion backup dir
+    shell: "find {{ backup_bastion_path }} -maxdepth 2 -type f -mtime +14 -exec rm -fr {} \\;"

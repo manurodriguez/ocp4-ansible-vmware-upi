@@ -1,0 +1,41 @@
+---
+- name: Get etcd container IDs
+  shell: "crictl ps --name etcdctl -q"
+  register: etcd_id
+  changed_when: false
+
+- debug:
+    var: etcd_id.stdout
+  when:
+    - enable_debug is defined
+    - enable_debug
+
+- name: Get etcd status
+  shell: "crictl exec -ti {{ etcd_id.stdout }} etcdctl endpoint health | grep {{ ansible_default_ipv4.address }}"
+  register: etcd_status
+
+- debug:
+    var: etcd_status.stdout
+  when:
+    - "'healthy' in etcd_status.stdout"
+    - enable_debug is defined
+    - enable_debug
+
+- name: Create backup
+  command: "/usr/local/bin/cluster-backup.sh {{ backup_master_path }}"
+  when:
+    - "'healthy' in etcd_status.stdout"
+
+- name: Fetch content of master backup dir
+  synchronize:
+    src: "{{ backup_master_path }}/"
+    dest: "{{ backup_bastion_path }}/{{ ansible_hostname }}"
+    mode: pull
+  when:
+    - "'healthy' in etcd_status.stdout"
+
+- name: Rotate content of master backup dir
+  shell: "find {{ backup_master_path }} -maxdepth 2 -type f -mtime +7 -exec rm -fr {} \\;"
+  when:
+    - "'healthy' in etcd_status.stdout"
+

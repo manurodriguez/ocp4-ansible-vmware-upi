@@ -1,0 +1,8 @@
+galaxy_info:
+  author: Manuel Rodriguez
+  description: role to populate the install-config for Red Hat OpenShift
+  company: Red Hat, Inc.
+  license: Apache License, Version 2.0
+  min_ansible_version: 2.9
+  galaxy_tags: []
+dependencies: []

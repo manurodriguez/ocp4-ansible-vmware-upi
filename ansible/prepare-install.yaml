@@ -1,0 +1,5 @@
+---
+- name: UPI Generate config files Playbook
+  hosts: localhost
+  roles:
+  - prepare-install

@@ -1,0 +1,42 @@
+apiVersion: v1
+baseDomain: {{ base_domain }}
+compute:
+- hyperthreading: {{ hyperthreading }}
+  name: worker
+  replicas: {{ numworkers }}
+controlPlane:
+  hyperthreading: {{ hyperthreading }}
+  name: master
+  replicas: {{ nummasters }}
+metadata:
+  creationTimestamp: null
+  name: {{ cluster_name }}
+networking:
+  clusterNetwork:
+  - cidr: {{ cluster_cidrnet }}
+    hostPrefix: {{ cluster_hostprefix }}
+  networkType: {{ network_type }}
+  openshiftSDNConfig:
+    mode: NetworkPolicy
+    mtu: {{ sdn_mtu }}
+    vxlanPort: {{ vxlan_port }}
+  serviceNetwork:
+  - {{ service_cidrnet }}
+platform:
+  vsphere:
+    vCenter: {{ vcenter_url }}
+    username: {{ vcenter_username }}
+    password: "{{ vcenter_password }}"
+    datacenter: "{{ vcenter_datacenter }}"
+    defaultDatastore: "{{ vcenter_datastore }}"
+    folder: "/{{ vcenter_datacenter }}/vm/{{ vcenter_folder }}"
+pullSecret: '{{ pullsecret }}'
+{%if (http_proxy|length or https_proxy|length) %}
+proxy:
+  httpProxy: {{ http_proxy }}
+  httpsProxy: {{ https_proxy }}
+  noProxy: {{ no_proxy_list + ',' + cluster_name + '.' + base_domain + ',' + machine_cidrnet }}
+{% endif %}
+sshKey: '{{ ssh_pubkey }}'
+additionalTrustBundle: |
+  {{ trustbundle | indent( width=2, indentfirst=False) }}

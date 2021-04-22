@@ -1,7 +1,11 @@
 bastion ansible_hosts=127.0.0.1 ansible_user=lab-user
 
 [masters]
-master-0.m2txj.dynamic.opentlc.com ansible_user=core
-master-1.m2txj.dynamic.opentlc.com ansible_user=core
-master-2.m2txj.dynamic.opentlc.com ansible_user=core
+master-0.example.com ansible_user=core
+master-1.example.com ansible_user=core
+master-2.example.com ansible_user=core
 
+[workers]example
+worker-0.example.com ansible_user=core
+worker-1.example.com ansible_user=core
+worker-2.example.com ansible_user=core

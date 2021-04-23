@@ -1,0 +1,5 @@
+---
+- name: Download OCP4 binaries and prepare Web server
+  hosts: localhost
+  roles:
+  - prepare-bastion

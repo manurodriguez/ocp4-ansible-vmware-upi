@@ -1,0 +1,117 @@
+---
+# tasks file for prepare-bastion
+
+- name: Install necessary packages
+  yum:
+    name: "{{ packages }}"
+    state: present
+
+- name: Ensure the default Apache port is 8080
+  lineinfile:
+    path: /etc/httpd/conf/httpd.conf
+    regexp: '^Listen '
+    insertafter: '^#Listen '
+    line: Listen 8080
+
+- name: Start httpd
+  systemd:
+    state: started
+    name: httpd
+    enabled: yes
+
+- name: Check if openshift-install binary exists
+  stat:
+    path: "{{ openshift-install_binary }}"
+  register: opsins_stat_result
+  tag:
+    - get-ocp4
+
+- name: Get current version of openshift-install binary
+  shell: "{{ openshift-install_binary }} version | grep openshift-install | awk '{print $2}'"
+  register: reg_opsins_version
+  changed_when: false
+  when: 
+    - opsins_stat_result.stat.exists | bool
+  tag:
+    - get-ocp4
+
+- name: Check to see if we should download openshift-install binary files
+  set_fact:
+    opsins_download_binary: true
+  when:
+    - reg_opsins_version.stdout != openshift_version
+  tag:
+    - get-ocp4
+
+- name: Downloading OCP4 Installer
+  get_url:
+    url: "{{ ocp_installer }}"
+    dest: /usr/local/src/openshift-install-linux.tar.gz
+    force: yes
+  when:
+    - opsins_download_binary
+  tag:
+    - get-ocp4
+
+- name: Unarchiving OCP4 Installer
+  unarchive:
+    src: /usr/local/src/openshift-install-linux.tar.gz
+    dest: /usr/local/bin
+    remote_src: yes
+    keep_newer: false
+    extra_opts:
+      - openshift-install
+  when:
+    - opsins_download_binary
+  tag:
+    - get-ocp4
+
+
+- name: Check if oc binary exists
+  stat:
+    path: "{{ oc_binary }}"
+  register: oc_stat_result
+  tag:
+    - get-ocp4
+
+- name: Get current version of openshift-install binary
+  shell: "{{ oc_binary }} version --client | awk '{print $3}'"
+  register: reg_oc_version
+  changed_when: false
+  when: 
+    - oc_stat_result.stat.exists | bool
+  tag:
+    - get-ocp4
+
+- name: Check to see if we should download oc binary file
+  set_fact:
+    oc_download_binary: true
+  when:
+    - reg_oc_version.stdout != openshift_version
+  tag:
+    - get-ocp4
+
+- name: Downloading OCP4 client
+  get_url:
+    url: "{{ ocp_client }}"
+    dest: /usr/local/src/openshift-client-linux.tar.gz
+    force: yes
+  when:
+    - oc_download_binary | bool
+  tag:
+    - get-ocp4
+
+- name: Unarchiving OCP4 client
+  unarchive:
+    src: /usr/local/src/openshift-client-linux.tar.gz
+    dest: "{{ oc_binary }}"
+    remote_src: yes
+    keep_newer: false
+    extra_opts:
+      - --transform
+      - s/^oc/oc4/
+      - s/^kubectl/kubectl4/
+  when:
+    - oc_download_binary | bool
+  tag:
+    - get-ocp4

@@ -1,0 +1,15 @@
+---
+# defaults file for prepare-bastion
+packages:
+  - bash-completion
+  - jq
+  - python3-kubernetes
+  - python3-openshift
+  - httpd
+  - vim
+  - wget
+openshift_version: "4.7.7"
+ocp_client: "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/{{ openshift_version }}/openshift-client-linux.tar.gz"
+ocp_installer: "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/{{ openshift_version }}/openshift-install-linux.tar.gz"
+oc_binary: "/usr/local/bin/oc4"
+openshift-install_binary: "/usr/local/bin/openshift-install"

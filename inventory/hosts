@@ -5,7 +5,7 @@ master-0.example.com ansible_user=core
 master-1.example.com ansible_user=core
 master-2.example.com ansible_user=core
 
-[workers]example
+[workers]
 worker-0.example.com ansible_user=core
 worker-1.example.com ansible_user=core
 worker-2.example.com ansible_user=core

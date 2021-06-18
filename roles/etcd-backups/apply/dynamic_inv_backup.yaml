@@ -1,0 +1,52 @@
+- name: Get OCP nodes and generate auto inventory
+  gather_facts: false
+  hosts: localhost
+  vars:
+    ansible_python_interpreter: /bin/python3
+  vars_files:
+    - "{{ playbook_dir }}/../defaults/main.yaml"
+  tasks:
+
+  - name: Gather all the Nodes
+    k8s_info:
+      validate_certs: no
+      kind: Node
+    register: ocp_nodes
+    tags:
+      - inventory
+
+  - debug:
+      msg: "{{ item.metadata.name }}"
+    loop_control:
+      label: "{{ item.metadata.name }}"
+    loop: "{{ ocp_nodes.resources }}"
+    when:
+      - enable_debug is defined
+      - enable_debug | bool
+      - ocp_nodes.resources is defined
+    tags:
+      - debug
+      - inventory
+
+  - name: Adding master nodes to group masters
+    add_host:
+      hostname: "{{ item.metadata.name }}"
+      ansible_user: core
+      groups:
+        - masters
+    loop_control:
+      label: "{{ item.metadata.name }}"
+    loop: "{{ ocp_nodes.resources }}"
+    when:
+      - ocp_nodes.resources is defined
+      - item.metadata.name | regex_search( master_nodes_tag + '[0-9]' | string)
+    tags:
+      - inventory
+
+
+# Play to perform etcd-backups on OCP4.7
+- name: Generate and pull etcd backups
+  hosts: masters
+  become: true
+  roles:
+    - etcd-backups

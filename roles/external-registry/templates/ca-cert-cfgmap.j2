@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ external_registry_cm_name }}"
+  namespace: openshift-config
+data:
+  {{ external_registry_fqdn }}: |
+    {{ external_registry_ca | indent( width=4, indentfirst=False) }}

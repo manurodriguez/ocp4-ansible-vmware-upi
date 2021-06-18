@@ -1,0 +1,25 @@
+---
+# defaults file for api-tls-cert
+
+# Name of the cluster
+ocp_cluster_name: "ocp4"
+ocp_base_domain: "example.com"
+
+# This variable should contain the certification for the apps sub domain.
+# the variable should include the full cert chain. including intermediate
+# and root ca cert.
+api_certs: |
+  -----BEGIN CERTIFICATE-----
+  -----END CERTIFICATE-----
+
+# Key can be in PEM format here, but for security reasons see option below
+#ingress_key: |
+#  PEM_GOES_HERE
+
+#To secure the key you can use the following: ~/ansible/.vault_secret is a file with the passphrase to decrypt it has 0600 permissions
+#  cat /product/ocp4upi/ssl/apiwildcard.key | ansible-vault encrypt_string --vault-password-file ~/ansible/.vault_secret --encrypt-vault-id default --name 'ingress_key'
+api_key: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          ADD VAULTED KEY HERE
+
+enable_etcd_encryption: true

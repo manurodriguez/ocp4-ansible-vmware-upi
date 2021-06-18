@@ -1,0 +1,22 @@
+== api-tls-cert
+
+This role will save the TLS cert as a Secret in OpenShift, 
+reconfigures the API to use this secret with a CA signed certificate
+and enables etcd encryption
+
+=== Requisites
+
+Replace variables in defaults/main.yml see details in the file.
+
+ocp_cluster_name:
+ocp_base_domain: 
+api_certs:
+api_key:
+enable_etcd_encryption: true
+
+=== Execute:
+
+----
+ansible-playbook roles/api-tls-cert/apply/main.yaml --vault-password-file ~/ansible/.vault_secret
+----
+

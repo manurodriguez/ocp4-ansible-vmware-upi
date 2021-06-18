@@ -1,0 +1,4 @@
+---
+- import_tasks: gather-nodes.yaml
+- import_tasks: create-infra-mcp.yaml
+- import_tasks: label-infra-nodes.yaml

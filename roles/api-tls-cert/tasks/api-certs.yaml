@@ -1,0 +1,40 @@
+---
+# tasks file for api-tls-cert
+
+- name: Create secret for holding api ssl cert
+  k8s:
+    validate_certs: no
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      type: kubernetes.io/tls
+      metadata:
+        name: "{{ ocp_cluster_name }}-api-cert"
+        namespace: openshift-config
+      data:
+        tls.crt: "{{ api_certs | b64encode }}"
+        tls.key: "{{ api_key | b64encode }}"
+  tags:
+    - tls
+    - api-cert
+
+- name: Patch the default apiserver cluster
+  k8s:
+    validate_certs: no
+    state: present
+    definition:
+      apiVersion: config.openshift.io/v1
+      kind: APIServer
+      metadata:
+        name: cluster
+      spec:
+        servingCerts:
+          namedCertificates:
+            - names: 
+              - "api.{{ ocp_cluster_name }}.{{ ocp_base_domain }}"
+              servingCertificate:
+                name: "{{ ocp_cluster_name }}-api-cert" 
+  tags:
+    - tls
+    - api-cert

@@ -1,9 +1,0 @@
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: ldap-group-whitelist
-  namespace: openshift-cluster-ops
-  labels:
-    purpose: ldap-group-sync
-data:
-  whitelist.txt: {{ lookup('file', 'whitelist.txt') | to_json }}

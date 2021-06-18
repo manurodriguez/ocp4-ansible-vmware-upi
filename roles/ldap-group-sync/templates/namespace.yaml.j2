@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: "{{ ldap_group_sync_namespace }}"
+  annotations:
+    openshift.io/node-selector: ""
+spec: {}

@@ -1,0 +1,46 @@
+---
+- name: Create the master chrony machineconfigs
+  template:
+    src: "99-chrony-configuration.j2"
+    dest: "{{ deployment_directory }}/openshift/99_master-chrony-configuration.yaml"
+    owner: "{{ ansible_user_id }}"
+    mode: '0640'
+  vars:
+    role: master
+  tags: build-chrony-mc-templates
+
+- name: Create the worker chrony machineconfigs
+  template:
+    src: "99-chrony-configuration.j2"
+    dest: "{{ deployment_directory }}/openshift/99_worker-chrony-configuration.yaml"
+    owner: "{{ ansible_user_id }}"
+    mode: '0640'
+  vars:
+    role: worker
+  tags: build-chrony-mc-templates
+
+- name: Copy the master chrony machineconfigs to openshift directory
+  copy:
+    src: "{{ deployment_directory }}/openshift/99_master-chrony-configuration.yaml"
+    dest: "{{ deployment_directory }}/99_master-chrony-configuration.yaml"
+    owner: "{{ ansible_user_id }}"
+    mode: '0640'
+    remote_src: yes
+  when:
+    - save_manifest is defined
+    - save_manifest | bool
+  tags:
+    - copy_manifest
+
+- name: Copy the worker chrony machineconfigs to openshift directory
+  copy:
+    src: "{{ deployment_directory }}/openshift/99_worker-chrony-configuration.yaml"
+    dest: "{{ deployment_directory }}/99_worker-chrony-configuration.yaml"
+    owner: "{{ ansible_user_id }}"
+    mode: '0640'
+    remote_src: yes
+  when:
+    - save_manifest is defined
+    - save_manifest | bool
+  tags:
+    - copy_manifest

@@ -1,0 +1,40 @@
+---
+# Play to setup etcd-backups on OCP4.7
+#
+- name: Pre bastion tasks
+  hosts: bastion
+  gather_facts: false
+  become: true
+  vars_files:
+    - "{{ playbook_dir }}/roles/etcd-backups/defaults/main.yaml"
+  tasks:
+
+  - name: Make sure bastion backup dir exists
+    file:
+      path: "{{ backup_bastion_path }}"
+      state: directory
+      owner: "{{ ansible_user }}"
+      group: users
+      mode:  u+rgw,g+srwx+o+rx
+    tags:
+      - bastion
+
+  - name: Ensure a job exits to run this play automatically"
+    cron:
+      name: "Take etcd backups"
+      minute: "0"
+      hour: "0"
+      job: "cd {{ playbook_dir }} && /usr/bin/ansible-playbook roles/etcd-backups/apply/main.yaml -i ../ocp4-vmware-upi-vars/{{ cluster_name }}/hosts/inventory"
+    become: false
+    tags:
+      - bastion
+
+  - name: Rotate content of bastion backup dir
+    cron:
+      name: "Rotate etcd backups"
+      minute: "10"
+      hour: "0"
+      job: "find {{ backup_bastion_path }} -maxdepth 2 -type f -mtime +14 -exec rm -fr {} \\;"
+    become: false
+    tags:
+      - bastion

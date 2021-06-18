@@ -1,0 +1,3 @@
+---
+- import_tasks: api-certs.yaml
+- import_tasks: etcd_encryption.yaml

@@ -1,0 +1,26 @@
+# Move the default Ingress Controller to the infra nodes
+- name: Search for default Ingress Controller
+  k8s_info:
+    validate_certs: no
+    kind: IngressController
+    name: default
+    namespace: openshift-ingress-operator
+  register: reg_ocp_ingresscontroller
+
+- debug:
+    var: reg_ocp_ingresscontroller.resources[0].spec.nodePlacement.nodeSelector.matchLabels
+  when:
+    - enable_debug is defined
+    - enable_debug | bool
+    - reg_ocp_ingresscontroller.resources[0].spec.nodePlacement.nodeSelector.matchLabels is defined
+  tags:
+    - debug
+
+- name: Move the Ingress Controller to the Infra Nodes
+  shell: >-
+    {{ oc_binary }} patch ingresscontroller default
+    -n openshift-ingress-operator --type=merge
+    --patch='{"spec":{"nodePlacement":{"nodeSelector":{"matchLabels":{"node-role.kubernetes.io/infra":""}}}}}'
+  when: |
+    - ( reg_ocp_ingresscontroller.resources[0].spec.nodePlacement is undefined or
+      reg_ocp_ingresscontroller.resources[0].spec.nodePlacement.nodeSelector.matchLabels['node-role.kubernetes.io/infra'] is undefined)

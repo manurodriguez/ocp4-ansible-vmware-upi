@@ -1,0 +1,12 @@
+== Include CA for Nexus registry
+
+This role imports the CA used by Nexus Registry and
+patches the image config resource to include the CA as
+an additional trusted CA.
+
+=== Role Variables
+external_registry_cm_name: my-ext-registry
+external_registry_fqdn: FQDN..PORT
+external_registry_ca: |
+  ADD_CA_HERE
+

@@ -1,0 +1,18 @@
+---
+# defaults file for cluster-monitoring
+
+# Please refer to the below OCP documentation for an idea of how much
+# storage would be required
+# https://docs.openshift.com/container-platform/4.7/scalability_and_performance/scaling-cluster-monitoring-operator.html
+
+prometheus_storage_class: "thin"
+prometheus_storage_size: "100Gi"
+prometheus_retention_period: "7d"
+alertmanager_storage_class: "thin"
+alertmanager_storage_size: "5Gi"
+
+alertmanager_smtp_smarthost: "your-smtp-server.example.com:25"
+alertmanager_smtp_from: "alert-sender-email@example.com"
+alertmanager_smtp_require_tls: false
+alertmanager_receiver_email: "alert-receiver-email@example.com"
+

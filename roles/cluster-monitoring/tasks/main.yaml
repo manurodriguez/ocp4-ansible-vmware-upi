@@ -1,0 +1,44 @@
+---
+# tasks file for cluster-monitoring
+
+- name: Create ConfigMap for openshift-monitoring
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', 'cluster-monitoring-config.yaml.j2') }}"
+
+- name: "[generate_templates_only] - Make sure produced_templates exists"
+  file:
+    path: "{{ playbook_dir }}/produced_templates"
+    state: directory
+  when:
+    - generate_templates_only is defined
+    - generate_templates_only | bool
+  tags:
+    - gentemplates
+
+- name: "[generate_templates_only] - Generate AlertManager ConfigMap template"
+  template: 
+    src: "cluster-monitoring-config.yaml.j2"
+    dest: "{{ playbook_dir }}/produced_templates/cluster-monitoring-config.yaml"
+  when:
+    - generate_templates_only is defined
+    - generate_templates_only | bool
+  tags:
+    - gentemplates
+
+- name: Create Secret for AlertManager configuration
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', 'alertmanager-secret.yaml.j2') }}"
+
+- name: "[generate_templates_only] - Generate AlertManager Secret template"
+  template: 
+    src: "alertmanager-secret.yaml.j2"
+    dest: "{{ playbook_dir }}/produced_templates/alertmanager-secret.yaml"
+  when:
+    - generate_templates_only is defined
+    - generate_templates_only | bool
+  tags:
+    - gentemplates

@@ -2,7 +2,7 @@
 This role configures cluster-logging as per the Openshift documenation.
 I try to follow allon closely the steps documented in the below page.
 
-https://docs.openshift.com/container-platform/4.3/logging/cluster-logging-deploying.html
+https://docs.openshift.com/container-platform/4.7/logging/cluster-logging-deploying.html
 
 The playbooks create the necessary namespaces, create subscriptions, install the
 operators and finally pushes out a CR for ClusterLogging.
@@ -10,14 +10,11 @@ operators and finally pushes out a CR for ClusterLogging.
 === Role Variables
 Default role variables that are defined.
 
-```
-clo_elastic_storage_size: "500Gi"
-clo_elastic_redundancyPolicy: "SingleRedundancy"
-clo_elastic_nodeCount: 3
-```
+See defaults/main.yml variables there are a lot
+
 
 === Dependencies
-This ansible role requires that you are have an authenticated kubectl session
+This ansible role requires that you are have an authenticated kubectl4/oc4 session
 which has sufficient previlegges to create namespaces, and install operators.
 
 
@@ -42,6 +39,7 @@ OR if you want to override some default variables
         name: cluster-logging
       vars:
         clo_elastic_storage_size: "1000Gi"
+        clo_...
 ----
 
 If you would like to use the role without including it or writing a playbook,
@@ -53,8 +51,3 @@ ansible-playbook roles/cluster-logging/apply/main.yml \
                  -e clo_elastic_storage_size=1000Gi
 ----
 
-
-TODO:
-
-  - Need to explore using taints/tolerations instead of nodeSelector
-    The docs seem to be moving away from using nodeSelector

@@ -4,4 +4,5 @@ metadata:
   name: "{{ ca_cert_configmap_name }}"
   namespace: openshift-config
 data:
-  ca.crt: {{ lookup('file', 'ldap-ca-cert.txt') | to_json }}
+  ca.crt: |
+    {{ ldap_ca | indent( width=4, indentfirst=False) }}

@@ -1,0 +1,5 @@
+---
+# tasks file for cluster-roles
+
+- import_tasks: assign-cluster-roles.yaml
+- import_tasks: delete-kubeadmin.yaml

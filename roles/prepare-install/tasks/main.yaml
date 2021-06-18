@@ -1,0 +1,16 @@
+---
+# tasks file for prepare-install
+- include_tasks: 10_create-install-config.yaml
+  tags: installconfig
+
+- include_tasks: 20_create_manifests.yaml
+  tags: manifests
+
+- include_tasks: 30_cleanup_manifests.yaml
+  tags: cleanup-manifests
+  
+- include_tasks: 40_create_chrony_manifests.yaml
+  tags: build-chrony-mc-templates
+
+- include_tasks: 50_prepare_ignition_files.yaml
+  tags: ignition

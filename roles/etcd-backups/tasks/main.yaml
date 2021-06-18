@@ -8,7 +8,9 @@
     var: etcd_id.stdout
   when:
     - enable_debug is defined
-    - enable_debug
+    - enable_debug | bool
+  tags:
+    - debug
 
 - name: Get etcd status
   shell: "crictl exec -ti {{ etcd_id.stdout }} etcdctl endpoint health | grep {{ ansible_default_ipv4.address }}"
@@ -19,7 +21,9 @@
   when:
     - "'healthy' in etcd_status.stdout"
     - enable_debug is defined
-    - enable_debug
+    - enable_debug | bool
+  tags:
+    - debug
 
 - name: Create backup
   command: "/usr/local/bin/cluster-backup.sh {{ backup_master_path }}"
@@ -38,4 +42,3 @@
   shell: "find {{ backup_master_path }} -maxdepth 2 -type f -mtime +7 -exec rm -fr {} \\;"
   when:
     - "'healthy' in etcd_status.stdout"
-

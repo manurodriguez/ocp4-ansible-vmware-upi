@@ -1,0 +1,3 @@
+---
+#default vars for self-provisioner
+oc_binary: "/usr/local/bin/oc"

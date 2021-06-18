@@ -68,7 +68,7 @@
     - get-ocp4
 
 
-- name: Check if oc binary exists
+- name: Check if oc4 binary exists
   stat:
     path: "{{ oc_binary }}"
   register: oc_stat_result
@@ -84,7 +84,7 @@
   tags:
     - get-ocp4
 
-- name: Check to see if we should download oc binary file
+- name: Check to see if we should download oc4 binary file
   set_fact:
     oc_download_binary: true
   when:

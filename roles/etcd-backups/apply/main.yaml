@@ -1,0 +1,6 @@
+# Play to perform etcd-backups on OCP4.7
+- name: Generate and pull etcd backups
+  hosts: masters
+  become: true
+  roles:
+    - etcd-backups

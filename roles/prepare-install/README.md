@@ -12,18 +12,17 @@ Requirements
 Role Variables
 --------------
 
-See inventory/hosts for full details of the role variables
+See defaults/main.yaml for full details of the role variables
 
 
 Dependencies
 ------------
 
-This role has no dependecines
+This role has no dependencies
 
 Example Playbook
 ----------------
 
-File: generate-config.yml
 ```
 ---
 - name: UPI on Vsphere Playbook
@@ -31,15 +30,11 @@ File: generate-config.yml
   roles:
   - prepare-install
 
-  environment:
-    http_proxy: "{{ http_proxy }}"
-    https_proxy: "{{ https_proxy }}"
-    no_proxy: "{{ no_proxy_list }}"
 ```
 
 Then run:
 ```
-$ ansible-playbook prepare-install.yml
+$ ansible-playbook roles/prepare-install/apply/main.yaml
 
 ```
 

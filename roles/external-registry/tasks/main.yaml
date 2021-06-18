@@ -1,0 +1,26 @@
+---
+# tasks file for external-registry
+
+- name: Create configmap with external registry CA
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', 'templates/ca-cert-cfgmap.j2') }}"
+  tags:
+    - external-registry
+
+- name: Patch the default apiserver cluster
+  k8s:
+    validate_certs: no
+    state: present
+    definition:
+      apiVersion: config.openshift.io/v1
+      kind: Image
+      metadata:
+        name: cluster
+      spec:
+        additionalTrustedCA:
+          name: "{{ external_registry_cm_name }}"
+  tags:
+    - external-registry
+

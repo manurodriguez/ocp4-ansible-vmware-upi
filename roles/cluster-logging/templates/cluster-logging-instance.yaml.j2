@@ -1,0 +1,86 @@
+apiVersion: "logging.openshift.io/v1"
+kind: "ClusterLogging"
+metadata:
+  name: "instance"
+  namespace: "openshift-logging"
+spec:
+  managementState: "Managed"
+  logStore:
+    type: "elasticsearch"
+    retentionPolicy:
+      application:
+        maxAge: "{{ clo_logstore_retention_apps }}"
+      infra:
+        maxAge: "{{ clo_logstore_retention_infra }}"
+      audit:
+        maxAge: "{{ clo_logstore_retention_audit }}"
+    elasticsearch:
+      resources:
+        limits:
+          cpu: "{{ clo_elastic_cpu_limit }}"
+          memory: "{{ clo_elastic_memory_limit }}"
+        requests:
+          cpu: "{{ clo_elastic_cpu_request }}"
+          memory: "{{ clo_elastic_memory_request }}"
+      proxy:
+        resources:
+          limits:
+            cpu: "{{ clo_elastic_proxy_cpu_limit }}"
+            memory: "{{ clo_elastic_proxy_memory_limit }}"
+          requests:
+            cpu: "{{ clo_elastic_proxy_cpu_request }}"
+            memory: "{{ clo_elastic_proxy_memory_request }}"
+      nodeCount:  {{ clo_elastic_nodeCount }}
+      nodeSelector:
+        node-role.kubernetes.io/infra: ""
+      redundancyPolicy: "{{ clo_elastic_redundancyPolicy }}"
+      storage:
+        storageClassName: "{{ clo_elastic_storage_class_name }}"
+        size: "{{ clo_elastic_storage_size }}"
+  visualization:
+    type: "kibana"
+    kibana:
+      resources:
+        limits:
+          cpu: "{{ clo_kibana_cpu_limit }}"
+          memory: "{{ clo_kibana_memory_limit }}"
+        requests:
+          cpu: "{{ clo_kibana_cpu_request }}"
+          memory: "{{ clo_kibana_memory_request }}"
+      proxy:
+        resources:
+          limits:
+            cpu: "{{ clo_kibana_proxy_cpu_request }}"
+            memory: "{{ clo_kibana_proxy_memory_limit }}"
+          requests:
+            cpu: "{{ clo_kibana_proxy_cpu_request }}"
+            memory: "{{ clo_kibana_proxy_memory_limit }}"
+      replicas: {{ clo_kibana_replicas }}
+      nodeSelector:
+        node-role.kubernetes.io/infra: ""
+  curation:
+    type: "curator"  
+    curator:
+      resources:
+        limits:
+          cpu: "{{ clo_curator_cpu_limit }}"
+          memory: "{{ clo_curator_memory_limit }}"
+        requests:
+          cpu: "{{ clo_curator_cpu_request }}"
+          memory: "{{ clo_curator_memory_request }}"
+      schedule: "{{ clo_curator_schedule }}"
+      nodeSelector:
+        node-role.kubernetes.io/infra: ""
+  collection:
+    logs:
+      type: "fluentd"  
+      fluentd:
+      fluentd:
+        resources: 
+          limits:
+            cpu: "{{ clo_fluentd_cpu_limit }}"
+            memory: "{{ clo_fluentd_memory_limit }}"
+          requests:
+            cpu: "{{ clo_fluentd_cpu_request }}"
+            memory: "{{ clo_fluentd_memory_request }}"
+

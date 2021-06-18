@@ -1,0 +1,32 @@
+---
+- name: Remove unnecessary machines and machinesets manifests
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ deployment_directory }}/openshift/99_openshift-cluster-api_worker-machineset-0.yaml"
+    - "{{ deployment_directory }}/openshift/99_openshift-cluster-api_master-machines-0.yaml"
+    - "{{ deployment_directory }}/openshift/99_openshift-cluster-api_master-machines-1.yaml"
+    - "{{ deployment_directory }}/openshift/99_openshift-cluster-api_master-machines-2.yaml"
+
+- name: Make sure masters are not schedulable
+  lineinfile:
+    path: "{{ deployment_directory }}/manifests/cluster-scheduler-02-config.yml"
+    state: present
+    regexp: '^  mastersSchedulable:'
+    line: '  mastersSchedulable: false'
+  tags:
+    - disable_master_schedule
+
+- name: Copy the cluster-scheduler-02-config.yml manifest
+  copy:
+    src: "{{ deployment_directory }}/manifests/cluster-scheduler-02-config.yml"
+    dest: "{{ deployment_directory }}/cluster-scheduler-02-config.yml"
+    owner: "{{ ansible_user_id }}"
+    mode: '0640'
+    remote_src: yes
+  when:
+    - save_manifest is defined
+    - save_manifest | bool
+  tags:
+    - copy_manifest

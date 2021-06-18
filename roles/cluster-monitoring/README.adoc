@@ -1,21 +1,37 @@
-Role Name
+cluster-monitoring
 =========
 
-A brief description of the role goes here.
+This role configures monitoring resources in infra nodes and setups alert notifications via email
+
 
 Requirements
 ------------
+- Storage
+- Email server and account to send alerts
 
 
 Role Variables
 --------------
+See defaults/main.yml for Storage and AlertManager variables
 
 
 Dependencies
 ------------
 
+Role: setup-infra
+
 IMPORTANT: Assuming you have nodes with the role "infra" setup for you cluster
 
 Example Playbook
 ----------------
+
+---
+- hosts: localhost
+  tasks:
+    - include_role:
+        name: cluster-monitoring
+
+Execute:
+
+ansible-playbook roles/cluster-monitoring/apply/main.yaml
 

@@ -3,6 +3,17 @@
 This role will save the TLS cert as a Secret in OpenShift and reconfigures the
 default ingress controller to use this secret for it's defaultCertificate.
 
-=== TODO
+=== Requisites
 
-- Need to update the readme
+Replace variables in defaults/main.yml see details in the file.
+
+ocp_cluster_name:
+ingress_certs:
+ingress_key:
+
+=== Execute:
+
+----
+ansible-playbook roles/ingress-tls-cert/apply/main.yaml --vault-password-file ~/ansible/.vault_secret
+----
+

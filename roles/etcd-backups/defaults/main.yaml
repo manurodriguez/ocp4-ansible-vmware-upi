@@ -1,4 +1,5 @@
 ---
+# variables for etcd-backups role
 backup_master_path: "/home/core/etcd-backups"
 backup_bastion_path: "/opt/etcd-backups"
-enable_debug: true
+master_nodes_tag: "master"

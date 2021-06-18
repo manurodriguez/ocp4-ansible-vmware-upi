@@ -1,0 +1,29 @@
+---
+# defaults file for ldap-oauth
+
+ca_cert_configmap_name: 'ldap-ca-cert'
+bind_password_secret_name: 'ldap-bind-secret'
+
+ldap_provider_name: "LDAP"
+ldap_bind_dn: 'CN=service-account,ou=Service,ou=Accounts,dc=example,dc=com'
+
+# To encrypt the ldap_bind_password in a vault run these commands: 
+# - first add the password in a file, 
+# vi your_pass_file
+# - next, remove any trailing lines
+# cat your_pass_file | tr -d "\n\r" > your_pass_file.txt
+# - then encrypt it
+# cat your_pass_file | ansible-vault encrypt_string --vault-password-file ~/ansible/.vault_secret --encrypt-vault-id default --name 'ldap_bind_password'
+# - then ~/ansible/.vault_secret contains the vault password
+# - remove temporal password files
+# rm your_pass_file your_pass_file.txt 
+ldap_bind_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+
+ldap_url: "ldaps://ldap.example.com:636/ou=Users,dc=example,dc=com?sAMAccountName"
+
+ldap_ca: |
+  -----BEGIN CERTIFICATE-----
+  -----END CERTIFICATE-----
+  -----BEGIN CERTIFICATE-----
+  -----END CERTIFICATE-----

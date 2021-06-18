@@ -1,0 +1,7 @@
+---
+# defaults file for external-registry
+
+external_registry_cm_name: external-registry
+external_registry_fqdn: external-registry.example.com
+external_registry_ca: |
+  # Add your CA HERE

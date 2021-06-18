@@ -1,3 +1,4 @@
 ---
+# variables for image-registry role
 image_registry_size: 100Gi
-image_regitry_emptydir: false
+image_registry_storage_class: thin

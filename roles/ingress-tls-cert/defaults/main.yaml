@@ -1,0 +1,34 @@
+---
+# defaults file for ingress-tls-cert
+oc_binary: "/usr/local/bin/oc"
+# Name of the cluster
+ocp_cluster_name: "ocp4"
+
+# This variable should contain the certification for the apps sub domain.
+# the variable should include the full cert chain. including intermediate
+# and root ca cert.
+ingress_certs: |
+  -----BEGIN CERTIFICATE-----
+  -----END CERTIFICATE-----
+
+# Key can be in PEM format here, but for security reasons see option below
+#ingress_key: |
+#  PEM_GOES_HERE
+
+#To secure the key you can use the following: ~/ansible/.vault_secret is a file with the passphrase to decrypt it has 0600 permissions
+#  cat /product/ocp4upi/ssl/apiwildcard.key | ansible-vault encrypt_string --vault-password-file ~/ansible/.vault_secret --encrypt-vault-id default --name 'ingress_key'
+ingress_key: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          ADD VAULTED KEY HERE
+
+##############
+# If you have the cert and key in a file stored in pem format you can use the lookup plugin
+# and load the file into the variable
+# NOTE: When using the lookup plugin the contents of the file are loaded as is.
+#       The secret stored in OCP expects the new line char at the end for tls.crt and tls.key
+#
+# IDEALLY: you want a lookup plugin which will look up the necessary cert and key from a vault
+#          like hashicorp vault
+#
+# ingress_certs: "{{ lookup('file', '{{ inventory_dir }}/config/{{ ocp_cluster_id }}/apps-domain.pem') }}\n"
+# ingress_key: "{{ lookup('file', '{{ inventory_dir }}/config/{{ ocp_cluster_id }}/apps-domain.key') }}\n"

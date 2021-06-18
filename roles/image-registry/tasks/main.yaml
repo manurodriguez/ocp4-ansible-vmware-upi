@@ -3,54 +3,36 @@
 
 - name: get config for imageregistry
   k8s_info:
+    validate_certs: no
     api_version: imageregistry.operator.openshift.io/v1
     kind: Config
     name: cluster
   register: reg_imagecfg
 
-# Configure PVC storage provided the variable image_registry_emptydir variable
-# is false.
+# Configure PVC storage
 - name: Configure PVC storage for Image Registry
-  block:
-    - name: Remove emptyDir storage if configured
-      shell: >-
-        oc patch configs.imageregistry.operator.openshift.io/cluster
-        --type json
-        --patch='[{"op":"remove","path":"/spec/storage/emptyDir"}]'
-      when:
-        - reg_imagecfg['resources'][0]['spec']['storage']['emptyDir'] is defined
-
-    - name: Assign pvc to image registry if it is not already assigned
-      shell: >-
-        oc patch configs.imageregistry.operator.openshift.io/cluster
-        --type merge
-        --patch='{"spec":{"storage":{"pvc":{"claim":""}}}}'
-      when:
-        - reg_imagecfg['resources'][0]['spec']['storage']['pvc'] is not defined
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', 'templates/registry-pvc.yaml') }}"
   when:
-    - not image_regitry_emptydir | bool
+    - reg_imagecfg['resources'][0]['spec']['storage']['claim'] is undefined
 
-###############################################################################
-# NOTE: This task will setup emptyDir storage for image-registry
-###############################################################################
-- name: Configure emptyDir storage for Image Registry
-  shell: >-
-    oc patch configs.imageregistry.operator.openshift.io/cluster
-    --type merge
-    --patch='{"spec":{"storage":{"emptyDir":{}}}}'
-  when:
-    - image_regitry_emptydir | bool
-    - reg_imagecfg['resources'][0]['spec']['storage']['emptyDir'] is defined
-###############################################################################
-
-###############################################################################
-# NOTE: This attribute was introduced in OCP 4.3
-###############################################################################
-- name: Change image registry ManagementState
-  shell: >-
-    oc patch configs.imageregistry.operator.openshift.io/cluster
-    --type merge
-    --patch='{"spec":{"managementState":"Managed"}}}'
-  when:
-    - reg_imagecfg['resources'][0]['spec']['managementState'] == "Removed"
-###############################################################################
+- name: Update registry config with PVC, rolloutStrategy, replicas, Managed mode, and move to infra nodes
+  k8s:
+    validate_certs: no
+    state: present
+    definition:
+      apiVersion: imageregistry.operator.openshift.io/v1
+      kind: Config
+      metadata:
+        name: cluster
+      spec:
+        managementState: Managed
+        rolloutStrategy: Recreate
+        replicas: 1
+        storage:
+          pvc:
+            claim: image-registry-storage
+        nodeSelector:
+          node-role.kubernetes.io/infra: ""

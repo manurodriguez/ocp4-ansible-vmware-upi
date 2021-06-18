@@ -1,0 +1,64 @@
+---
+# defaults file for cluster-logging
+oc_binary: "/usr/local/bin/oc"
+
+clo_subcription_channel: "5.0"
+clo_subcription_install_plan: "Automatic"
+eo_subcription_channel: "5.0"
+eo_subcription_install_plan: "Automatic"
+
+clo_logstore_retention_apps: "7d"
+clo_logstore_retention_infra: "1d"
+clo_logstore_retention_audit: "7d"
+
+clo_elastic_cpu_limit: "1000m"
+clo_elastic_memory_limit: "8Gi"
+clo_elastic_cpu_request: "1000m"
+clo_elastic_memory_request: "8Gi"
+
+clo_elastic_proxy_cpu_limit: "100m"
+clo_elastic_proxy_memory_limit: "256Mi"
+clo_elastic_proxy_cpu_request: "100m"
+clo_elastic_proxy_memory_request: "256Mi"
+
+clo_elastic_nodeCount: 3
+clo_elastic_redundancyPolicy: "SingleRedundancy"
+clo_elastic_storage_class_name: "thin"
+clo_elastic_storage_size: "100Gi"
+
+
+clo_kibana_cpu_limit: "1000m"
+clo_kibana_memory_limit: "1Gi"
+clo_kibana_cpu_request: "250m"
+clo_kibana_memory_request: "256Mi"
+
+clo_kibana_proxy_cpu_request: "100m"
+clo_kibana_proxy_memory_request: "100Mi"
+clo_kibana_proxy_cpu_limit: "100m"
+clo_kibana_proxy_memory_limit: "100Mi"
+
+clo_kibana_replicas: 1
+
+
+clo_curator_cpu_limit: "200m"
+clo_curator_memory_limit: "200Mi"
+clo_curator_cpu_request: "200m"
+clo_curator_memory_request: "200Mi"
+clo_curator_schedule: "30 3 * * *"
+
+
+clo_fluentd_cpu_limit: "400m"
+clo_fluentd_memory_limit: "736Mi"
+clo_fluentd_cpu_request: "400m"
+clo_fluentd_memory_request: "736Mi"
+
+
+clo_eventrouter_cpu_request: "100m"
+clo_eventrouter_memory_limit: "64Mi"
+
+# Research how to set this in OCP4.7
+clo_mux_cpu_request: "400m"
+clo_mux_memory_limit: "256Mi"
+clo_fluentd_buffer_size_limit: "16m"
+clo_fluentd_buffer_queue_limit: 32
+clo_fluentd_file_buffer_limit: "512Mi"

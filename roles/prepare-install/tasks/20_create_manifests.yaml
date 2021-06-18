@@ -1,0 +1,16 @@
+---
+- name: Create OpenShift Manifest
+  shell: |
+    /usr/local/bin/openshift-install --dir {{ deployment_directory }} create manifests
+  tags: manifests
+
+- name: Ensure the manifests directory is owned by {{ ansible_user_id }}
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    owner: "{{ ansible_user_id }}"
+  with_items:
+  - "{{ deployment_directory }}/openshift"
+  - "{{ deployment_directory }}/manifests"
+  tags: manifests

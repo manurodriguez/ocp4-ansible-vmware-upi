@@ -1,0 +1,13 @@
+---
+# tasks file for self-provisioning
+
+- name: Disable project self-provisioning for regular users
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('file', 'files/crb-self-provisioners.yaml') }}"
+
+- name: Disable autoupdate to make sure it does not revert
+  shell: >-
+    {{ oc_binary }} patch clusterrolebinding.rbac self-provisioners
+    --patch='{ "metadata": { "annotations": { "rbac.authorization.kubernetes.io/autoupdate": "false" } } }'

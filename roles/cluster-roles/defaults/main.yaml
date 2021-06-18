@@ -1,0 +1,4 @@
+---
+# variables for cluster-roles
+cluster_reader_group: "ldap_reader_group"
+cluster_admin_group: "ldap_admin_group"

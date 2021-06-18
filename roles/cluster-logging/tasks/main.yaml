@@ -1,0 +1,68 @@
+---
+# tasks file for cluster-logging
+
+# The steps here try to mirror the steps described in the documentation page
+# https://docs.openshift.com/container-platform/4.7/logging/cluster-logging-deploying.html
+
+- name: Create openshift-operators-redhat Namespace
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('file', 'files/eo-namespace.yaml') }}"
+
+- name: Create openshift-logging Namespace
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('file', 'files/clo-namespace.yaml') }}"
+
+- name: Create OperatorGroup openshift-operators-redhat
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('file', 'files/eo-og.yaml') }}"
+
+- name: Create OperatorGroup openshift-logging
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('file', 'files/clo-og.yaml') }}"
+
+- name: Create Subscription for elasticsearch-operator
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', 'templates/eo-sub.yaml.j2') }}"
+
+- name: Create Subscription for cluster-logging-operator
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', 'templates/clo-sub.yaml.j2') }}"
+
+- name: Wait for cluster-logging-operator subscription to be installed
+  k8s_info:
+    validate_certs: no
+    api_version: operators.coreos.com/v1alpha1
+    kind: ClusterServiceVersion
+    namespace: openshift-logging
+  register: reg_csr_status
+  vars:
+    status_query: "resources[*].status.phase"
+    update_status: "{{ reg_csr_status | json_query(status_query) | flatten | unique }}"
+  until:
+    - update_status == ['Succeeded']
+  retries: 10 # wait for 10 minutes (10 retries x 60 sec = 600 sec)
+  delay: 60
+  # TODO: Refind the udpate_status condition we check. As of now it check to
+  #       see if all the operators installed in the namespace have a status of
+  #       Succeeded. Consider just checking the operator that we need installed
+
+- name: Create Event Router
+  shell: "{{ oc_binary }} process -f {{ role_path }}/files/eventrouter.yaml | {{ oc_binary }} apply -n openshift-logging -f -"
+
+- name: Create ClusterLogging instance
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', 'templates/cluster-logging-instance.yaml.j2') }}"

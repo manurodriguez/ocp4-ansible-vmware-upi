@@ -1,0 +1,79 @@
+---
+- name: Create Namespace
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', 'templates/namespace.yaml.j2') }}"
+
+- name: Create ServiceAccount
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', 'templates/serviceaccount.yaml.j2') }}"
+
+- name: Create ClusterRole
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('file', 'files/clusterrole.yaml') }}"
+
+- name: Create ClusterRoleBinding
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', 'templates/clusterrolebinding.yaml.j2') }}"
+
+- name: Create group-sync configmap
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', 'templates/ldap-group-sync-cfgmap.yaml.j2') }}"
+
+- name: Create ca cert configmap
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', 'templates/ca-cert-cfgmap.yaml.j2') }}"
+  tags:
+    - ldap-ca
+
+- name: Create Secret
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', 'templates/secret.yaml.j2') }}"
+
+- name: Create CronJob
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', 'templates/cronjob.yaml.j2') }}"
+
+- name: Gather Jobs
+  k8s_info:
+    validate_certs: no
+    api_version: batch/v1
+    kind: Job
+    name: first-sync
+    namespace: "{{ ldap_group_sync_namespace }}"
+  register: jobs_list
+  tags:
+    - job
+
+- debug:
+    msg: "{{ jobs_list.resources[0].metadata.name }}"
+  when:
+    - enable_debug is defined
+    - enable_debug | bool
+    - jobs_list.resources[0].metadata.name is defined
+  tags:
+    - debug
+    - job
+
+- name: Trigger a first job to sync users without waiting for cronjob time
+  command: "{{ oc_binary }} create job first-sync --from=cronjob/cronjob-ldap-group-sync -n {{ ldap_group_sync_namespace }}"
+  when: |
+    - ( jobs_list.resources[0].metadata.name is undefined or
+      jobs_list.resources[0].metadata.name != "first-sync" )
+  tags:
+    - job

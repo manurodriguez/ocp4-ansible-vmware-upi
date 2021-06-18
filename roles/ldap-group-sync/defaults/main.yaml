@@ -1,0 +1,23 @@
+---
+# defaults file for ldap-group-sync
+oc_binary: "/usr/local/bin/oc"
+
+ldap_bind_dn: 'CN=service-account,ou=Service,ou=Accounts,dc=example,dc=com'
+
+# To encrypt the ldap_bind_password in a vault run this command and type the password, then press ctrl-d to end input
+#ansible-vault encrypt_string --vault-password-file ~/ansible/.vault_secret --encrypt-vault-id default --name 'ldap_bind_password'
+ldap_bind_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+
+ldap_group_sync_url: "ldaps://ldap.example.com"
+ldap_groups_query: "OU=Groups,DC=example,DC=com"
+ldap_groups_filter: "(&(objectclass=group)(|(cn=group1)(cn=group2)(cn=opsp_develauctiondev_rusr_opql)))"
+ldap_users_query: "ou=Users,dc=example,dc=com"
+
+ldap_group_sync_namespace: "ldapsync"
+
+ldap_ca: |
+  -----BEGIN CERTIFICATE-----
+  -----END CERTIFICATE-----
+  -----BEGIN CERTIFICATE-----
+  -----END CERTIFICATE-----

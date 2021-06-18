@@ -1,69 +1,46 @@
 ---
 # defaults file for prepare-install
-deployment_directory: ocp
+bastion_http_port: 8080
+ignition_roles:
+  - bootstrap
+  - master
+  - worker
+ignition_files_web_path: "/var/www/html/ignition"
+
+deployment_directory: "/home/{{ ansible_user_id }}/ocp"
 
 clock_servers:
-  - pool.ntp.org
-  - clock.redhat.com
+  - 1.2.3.4
 
 hyperthreading: "Enabled"
 
 base_domain: "example.com"
 cluster_name: "ocp4"
-network_type: "OpenshiftSDN"
-machine_cidrnet: "192.168.100.0/24"
-cluster_cidrnet: "10.128.0.0/14"
-cluster_hostprefix: "23"
+network_type: "OpenShiftSDN"
+machine_cidrnet: "10.238.128.0/23"
+cluster_cidrnet: "10.254.0.0/16"
+cluster_hostprefix: "24"
 service_cidrnet: "172.30.0.0/16"
 sdn_mtu: 1450
-vxlan_port: 4889
+vxlan_port: 4888
 
-pullsecret: 'Add-pull-secret-here'
-
-http_proxy: "http://192.168.100.1:3128"
-https_proxy: "http://192.168.100.1:3128"
-no_proxy_list: ".example.com"
+http_proxy: "http://proxy-ip:3128"
+https_proxy: "http://proxy-ip:3128"
 
 vcenter_url: vcenter.example.com
-vcenter_username: vcenter-user
-vcenter_password: "vcenter-pass"
-vcenter_datacenter: "datacenter1"
-vcenter_datastore: "datastore1"
+vcenter_username: vcenter-service-account
+vcenter_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+
+vcenter_datacenter: "datacenter-name"
+vcenter_datastore: "Vcenter-Datastore"
 vcenter_folder: "ocp4"
 
-trustbundle: |
+catrustbundle: |
   -----BEGIN CERTIFICATE-----
-  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
   -----END CERTIFICATE-----
+  -----BEGIN CERTIFICATE-----
+  -----END CERTIFICATE-----
+
+pullsecret: !vault |
+          $ANSIBLE_VAULT;1.1;AES256

@@ -1,0 +1,26 @@
+---
+# tasks file for project-template
+
+- name: Create the default project template
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('file', 'files/project-request-template.yaml') }}"
+
+- name: Create a custom resource to start using then new template
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', 'templates/cr_project_request.yaml.j2') }}"
+
+- name: Label default namespace with ingress policy group
+  k8s:
+    validate_certs: no
+    state: present
+    definition:
+      api_version: v1
+      kind: Namespace
+      metadata:
+        name: default
+        labels:
+          network.openshift.io/policy-group: ingress

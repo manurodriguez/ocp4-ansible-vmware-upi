@@ -1,0 +1,4 @@
+---
+# variables for setup-infra role
+infra_nodes_tag: "infra"
+oc_binary: "/usr/local/bin/oc"

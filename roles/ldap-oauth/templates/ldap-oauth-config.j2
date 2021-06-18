@@ -4,23 +4,23 @@ metadata:
   name: cluster
 spec:
   identityProviders:
-  - name: msldap
+  - name: "{{ ldap_provider_name }}"
     mappingMethod: claim
     type: LDAP
     ldap:
       attributes:
         id:
-        - dn
+        - sAMAccountName
         email:
         - mail
         name:
         - cn
         preferredUsername:
         - sAMAccountName
-      bindDN: "{{ ldap_bind_user }}"
+      bindDN: "{{ ldap_bind_dn }}"
       bindPassword:
         name: "{{ bind_password_secret_name }}"
-      insecure: false
       ca:
         name: "{{ ca_cert_configmap_name }}"
-      url: "{{ ldap_url }}{{ ldap_filter_groups }}"
+      insecure: false
+      url: "{{ ldap_url }}"

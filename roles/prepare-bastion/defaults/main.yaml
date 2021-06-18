@@ -3,15 +3,15 @@
 packages:
   - bash-completion
   - jq
-  - python3-kubernetes
-  - python3-openshift
   - httpd
   - vim
-  - wget
 openshift_version: "4.7.7"
 ocp_client: "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/{{ openshift_version }}/openshift-client-linux.tar.gz"
 ocp_installer: "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/{{ openshift_version }}/openshift-install-linux.tar.gz"
-oc_binary: "/usr/local/bin/oc4"
+oc_binary: "/usr/local/bin/oc"
 openshift_install_binary: "/usr/local/bin/openshift-install"
 opsins_download_binary: false
 oc_download_binary: false
+#Define proxy if required
+#http_proxy: "http://your-proxy:3128"
+#https_proxy: "http://your-proxy:3128"

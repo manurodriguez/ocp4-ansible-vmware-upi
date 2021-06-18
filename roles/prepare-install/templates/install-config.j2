@@ -12,7 +12,7 @@ metadata:
   creationTimestamp: null
   name: {{ cluster_name }}
 networking:
-  clusterNetwork:
+  clusterNetworks:
   - cidr: {{ cluster_cidrnet }}
     hostPrefix: {{ cluster_hostprefix }}
   networkType: {{ network_type }}
@@ -35,8 +35,8 @@ pullSecret: '{{ pullsecret }}'
 proxy:
   httpProxy: {{ http_proxy }}
   httpsProxy: {{ https_proxy }}
-  noProxy: {{ no_proxy_list + ',' + cluster_name + '.' + base_domain + ',' + machine_cidrnet }}
+  noProxy: {{ base_domain + ',' + cluster_name + '.' + base_domain + ',' + machine_cidrnet }}
 {% endif %}
 sshKey: '{{ ssh_pubkey }}'
 additionalTrustBundle: |
-  {{ trustbundle | indent( width=2, indentfirst=False) }}
+  {{ catrustbundle | indent( width=2, indentfirst=False) }}

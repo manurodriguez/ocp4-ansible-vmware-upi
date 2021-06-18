@@ -11,18 +11,32 @@ So please walk through the roles first, before attempting to run them.
 
 === Setting up your environment to run the playbooks
 
+REQUIREMENTS:
+----
+ - python3
+ - python modules for ansible: openshift kubernetes
+ - access to the openshift API with a cluster-admin account
+----
+
+NOTE: if access to download python pip packages is blocked uncompress 
+file k8s-ocp-deps.tar.gz in the home dir of the user running these plays
+----
+tar xzvf k8s-ocp-deps.tar.gz ~/
+----
+
+
+
 ==== RHEL7
 
-Assuming that you are running as root. Adjust accordingly
+Assuming that you are running as a non root user. Adjust accordingly
 
 ----
-yum install ansible
-yum install python27-python-pip
-pip install -U setuptools
-pip install --user openshift kubernetes
+sudo yum install ansible
+sudo yum install python3.x86_64 python3-pip.noarch libselinux-python3.x86_64
+pip3 install --user openshift kubernetes
 ----
 
-=== Runing the indivdual roles
+=== Runing the individual roles
 You can run individual roles by runnning ansible playbook against the
 roles/<role-name>/apply/main.yaml playbook in each of the individual roles.
 
@@ -30,13 +44,26 @@ roles/<role-name>/apply/main.yaml playbook in each of the individual roles.
 ansible-playbook roles/<role-name>/apply/main.yaml
 ----
 
+== Install roles
+
+1. Prepare the bastion node (ocp4 clients, httpd)
+----
+ansible-playbook roles/prepare-bastion/apply/main.yaml
+----
+
+2. Prepare install-config, and manifests, ignition files
+----
+ansible-playbook roles/prepare-install/apply/main.yaml --vault-password-file .vault_secret
+----
+
 Below are the list of ansible roles that are available. Do checkout the
 individual role's documenation for more information on what they do.
 
-== List of Roles
+== List of Day2 Roles
 
 ----
 roles/
+├── api-tls-cert
 ├── cluster-monitoring
 ├── cluster-logging
 ├── etcd-backup
@@ -45,6 +72,106 @@ roles/
 ├── ldap-group-sync
 ├── ldap-oauth
 ├── project-template
+├── self-provisioner
 └── setup-infra
+----
+
+00. Authenticate with oc client to cluster API
+This ansible role requires that you are have an authenticated kubectl/oc session
+which has sufficient previlegges to create namespaces, and install operators.
+----
+oc login -u <cluster-admin-user> https://api.yourdomain.com
+----
+
+WARNING: Make sure you are in the ansible directory of this repo before you these playbooks
+----
+git clone https://THIS_REPO
+cd THIS_REPO
+----
+
+01. Convert worker nodes to infra
+----
+ansible-playbook roles/setup-infra/apply/main.yaml
+----
+
+02. Update infra TLS certificate and Key and move pods to infra nodes
+----
+ansible-playbook roles/ingress-tls-cert/apply/main.yaml --vault-password-file .vault_secret 
+----
+
+03. Apply default project request template
+----
+ansible-playbook roles/project-template/apply/main.yaml
+----
+
+04. Activate, Update Image Registry and move pods to infra nodes
+----
+ansible-playbook roles/image-registry/apply/main.yaml
+----
+
+05. Move cluster monitoring resources to infra nodes
+----
+ansible-playbook roles/cluster-monitoring/apply/main.yaml
+----
+
+06. Setup EFK stack
+----
+ansible-playbook roles/cluster-logging/apply/main.yaml
+----
+
+07. Integrate LDAP authentication
+----
+ansible-playbook roles/ldap-oauth/apply/main.yaml --vault-password-file .vault_secret
+----
+
+08. Integrate LDAP group synchronization
+----
+ansible-playbook roles/ldap-group-sync/apply/main.yaml --vault-password-file .vault_secret
+----
+
+09. Remove Self Provisioners Rolebinding
+----
+ansible-playbook roles/self-provisioner/apply/main.yaml
+----
+
+10. Update API TLS certificate and enable etcd encryption
+----
+ansible-playbook roles/api-tls-cert/apply/main.yaml --vault-password-file .vault_secret 
+----
+
+11. Assign cluster roles to ldap groups and remove kubeadmin
+----
+ansible-playbook roles/cluster-roles/apply/main.yaml
+----
+
+12. Setup ETCD backups
+----
+ansible-playbook setup-etcd-backup.yaml
+----
+NOTE: if you want to perform an etcd backup run: ansible-playbook roles/etcd-backups/apply/main.yaml
+
+
+
+Run All base roles!
+----
+ansible-playbook day2-common.yaml --vault-password-file .vault_secret 
+ansible-playbook setup-etcd-backup.yaml 
+----
+
+Override variables for a role or run all
+----
+ansible-playbook roles/ROLE_NAME/apply/main.yaml
+or
+ansible-playbook day2-common.yaml --vault-password-file .vault_secret
+----
+
+
+IMPORTANT: After running the playbook 12 (cluster-roles), you need to login with your LDAP creds
+perform the following steps to clean old references to kubeadmin and old api certs
+
+----
+rm -rf ~/.kube
+unset KUBECONFIG
+oc login https://api.REPLACE-ENV.example.com:6443 -u YOUR_USER
 ----
 

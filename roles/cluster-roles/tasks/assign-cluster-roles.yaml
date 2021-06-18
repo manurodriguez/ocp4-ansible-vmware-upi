@@ -1,0 +1,16 @@
+---
+- name: Apply group role assigment for clusteradmins group to cluster-admin role
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', 'templates/crb-cluster-admin.yaml.j2') }}"
+  tags:
+    - cluster-roles
+
+- name: Apply group role assigment for cluster readers group to cluster-reader role
+  k8s:
+    validate_certs: no
+    state: present
+    definition: "{{ lookup('template', 'templates/crb-cluster-reader.yaml.j2') }}"
+  tags:
+    - cluster-roles

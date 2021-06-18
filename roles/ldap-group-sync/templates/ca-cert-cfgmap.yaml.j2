@@ -1,0 +1,10 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: ldap-group-sync-ca-cert
+  namespace: {{ ldap_group_sync_namespace }}
+  labels:
+    purpose: ldap-group-sync
+data:
+  ca.crt: |
+    {{ ldap_ca | indent( width=4, indentfirst=False) }}

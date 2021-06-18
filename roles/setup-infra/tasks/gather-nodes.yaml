@@ -1,4 +1,16 @@
 - name: Gather all the Nodes
   k8s_info:
+    validate_certs: no
     kind: Node
   register: ocp_nodes
+
+- debug:
+    msg: "{{ item.metadata.name }}"
+  loop_control:
+    label: "{{ item.metadata.name }}"
+  loop: "{{ ocp_nodes.resources }}"
+  when:
+    - enable_debug is defined
+    - enable_debug | bool
+  tags:
+    - debug

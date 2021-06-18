@@ -1,0 +1,3 @@
+---
+- import_tasks: set-tls-files.yaml
+- import_tasks: move-infra-workload.yaml

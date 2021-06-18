@@ -1,0 +1,51 @@
+---
+- name: Create ignition files
+  shell: |
+    /usr/local/bin/openshift-install --dir {{ deployment_directory }} create ignition-configs
+
+- name: Create ignition web directory
+  file:
+    path: "{{ ignition_files_web_path }}"
+    state: directory
+    owner: root
+    group: root
+    setype: httpd_sys_content_t
+  become: true
+
+- name: Copy ignition files to web directory
+  copy:
+    src: "{{ deployment_directory }}/{{ ignition_role }}.ign"
+    dest: "{{ ignition_files_web_path}}/{{ ignition_role }}.ign"
+    owner: root
+    group: root
+    mode: '0644'
+    setype: httpd_sys_content_t
+  loop: "{{ ignition_roles }}"
+  loop_control:
+    loop_var: ignition_role
+  become: true
+
+- name: Create append ignition files
+  template:
+    src: "append.ign.j2"
+    dest: "{{ ignition_files_web_path}}/append-{{ ignition_role }}.ign"
+    owner: root
+    group: root
+    mode: '0644'
+    setype: httpd_sys_content_t
+  loop: "{{ ignition_roles }}"
+  loop_control:
+    loop_var: ignition_role
+  become: true
+
+- name: Generate append ignition files in base64 - PROVIDE THIS TO vRA AUTOMATION
+  copy:
+    content: "{{ lookup('template', 'templates/append.ign.j2') | b64encode }}"
+    dest: "{{ deployment_directory }}/append-{{ ignition_role }}.b64"
+    owner: "{{ ansible_user_id }}"
+    mode: '0640'
+  loop: "{{ ignition_roles }}"
+  loop_control:
+    loop_var: ignition_role
+
+

@@ -1,0 +1,14 @@
+---
+# oc4 delete secrets kubeadmin -n kube-system
+- name: Disable kubeadmin
+  k8s:
+    validate_certs: no
+    state: absent
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: kubeadmin
+        namespace: kube-system
+  tags:
+    - delete-kubeadmin

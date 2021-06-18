@@ -1,0 +1,26 @@
+kind: LDAPSyncConfig
+apiVersion: v1
+url: "{{ ldap_group_sync_url }}"
+bindDN: "{{ ldap_bind_dn }}"
+bindPassword: "{{ ldap_bind_password }}"
+insecure: false
+ca: /etc/pki/ca-trust/source/anchors/ca.crt
+rfc2307:
+    groupsQuery:
+        baseDN: "{{ ldap_groups_query }}"
+        scope: one
+        derefAliases: never
+        timeout: 0
+        filter: {{ ldap_groups_filter }}
+        pageSize: 0
+    groupUIDAttribute: dn
+    groupNameAttributes: [ sAMAccountName ]
+    groupMembershipAttributes: [ member ]
+    usersQuery:
+        baseDN: "{{ ldap_users_query }}"
+        scope: sub
+        timeout: 0
+        derefAliases: never
+        pageSize: 0
+    userUIDAttribute: dn
+    userNameAttributes: [ sAMAccountName ]

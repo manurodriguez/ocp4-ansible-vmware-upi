@@ -4,3 +4,9 @@
   become: true
   roles:
   - prepare-bastion
+
+# If required uncomment this
+#  environment:
+#    http_proxy: "{{ http_proxy }}"
+#    https_proxy: "{{ https_proxy }}"
+
